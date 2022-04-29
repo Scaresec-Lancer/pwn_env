@@ -21,6 +21,7 @@ RUN apt install gdb vim -y
 RUN apt install python3 python3-pip -y
 RUN apt install net-tools build-essential -y
 RUN apt install module-assistant gcc-multilib g++-multilib -y
+RUN apt install iputils-ping curl -y
 
 # pip换源
 RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
