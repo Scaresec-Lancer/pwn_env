@@ -3,7 +3,7 @@ A fast pwn environment,build based on ubuntu via docker
 
 | Version | Total size |
 | ------- | ---------- |
-| 1.0     | 1.12G      |
+| 2.0     | 930MB      |
 
 
 
@@ -12,7 +12,7 @@ A fast pwn environment,build based on ubuntu via docker
 **docker build images**
 
 ```bash
-docker build -t 1527099663/pwn_env:1.0 .
+docker build -t "pwn" .
 ```
 
 
@@ -22,7 +22,7 @@ docker build -t 1527099663/pwn_env:1.0 .
 **pull images**
 
 ```bash
-docker pull 1527099663/pwn_env
+docker pull 1527099663/pwn_env:2.0
 ```
 
 
@@ -32,7 +32,7 @@ docker pull 1527099663/pwn_env
 **container start**
 
 ```bash
-docker run -itd --name pwn01 1527099663/pwn_env:1.0 /bin/bash
+docker run -itd -p 3000 --name pwn01 1527099663/pwn_env:2.0 /bin/bash
 docker exec -it pwn01 /bin/bash
 ```
 
