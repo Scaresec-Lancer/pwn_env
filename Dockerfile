@@ -1,47 +1,31 @@
 FROM ubuntu
 
-# ubuntu换源
-RUN echo 'deb http://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse' > /etc/apt/sources.list
-RUN echo 'deb-src http://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse' >> /etc/apt/sources.list
-RUN echo 'deb http://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse' >> /etc/apt/sources.list
-RUN echo 'deb-src http://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse' >> /etc/apt/sources.list
-RUN echo 'deb http://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse' >> /etc/apt/sources.list
-RUN echo 'deb-src http://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse' >> /etc/apt/sources.list
-RUN echo 'deb http://mirrors.aliyun.com/ubuntu/ focal-proposed main restricted universe multiverse' >> /etc/apt/sources.list
-RUN echo 'deb-src http://mirrors.aliyun.com/ubuntu/ focal-proposed main restricted universe multiverse' >> /etc/apt/sources.list
-RUN echo 'deb http://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse' >> /etc/apt/sources.list
-RUN echo 'deb-src http://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse' >> /etc/apt/sources.list
+# 解决apt安装时的时区问题
+ENV TIME_ZONE Asia/Shanghai 
 
-RUN apt update
+# 解决pwndbg使用时，默认容器内POSIX编码出错问题
+ENV LANG C.UTF-8
 
-# 设置时区为上海，防止apt install 时需要选择时区
-ARG DEBIAN_FRONTEND=noninteractive
-
-RUN apt install gdb vim -y
-RUN apt install python3 python3-pip -y
-RUN apt install net-tools build-essential -y
-RUN apt install module-assistant gcc-multilib g++-multilib -y
-RUN apt install iputils-ping curl -y
-
-# pip换源
-RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-
-# 安装pwntools
-RUN pip install pwntools
+# 换源，设置时区，安装gdb vim python3 python3-pip net-tools curl gcc g++，清理apt缓存
+RUN sed -i "s/archive.ubuntu.com/mirrors.aliyun.com/g; s/security.ubuntu.com/mirrors.aliyun.com/g" /etc/apt/sources.list  \
+    && apt update \
+    && apt install -y tzdata \
+    && ln -snf /usr/share/zoneinfo/$TIME_ZONE /etc/localtime && echo $TIME_ZONE > /etc/timezone \
+    && dpkg-reconfigure -f noninteractive tzdata \
+    && apt install gdb vim git python3 python3-pip net-tools curl -y \
+    && pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple \
+    && pip install pwntools LibcSearcher \
+    && apt clean \
+    && rm -rf /tmp/* /var/cache/* /usr/share/doc/* /usr/share/man/* /var/lib/apt/lists/* 
 
 # 添加pwndbg
 ADD pwndbg.tar.gz /usr/local
 RUN cd /usr/local/pwndbg && chmod +x ./setup.sh && ./setup.sh
 
-# 添加ida_pro远程调试模块
-RUN cd /usr/local && mkdir ida
-ADD linux_server /usr/local/ida
-ADD linux_server64 /usr/local/ida
+EXPOSE 3000
 
 
-# 设置默认语言为en_US.UTF-8，避免GDB报编码错误
-#RUN apt install locales -y && locale-gen en_US.UTF-8 
-#RUN echo 'LANG="en_US.UTF-8"' > /etc/default/locale
-#RUN echo 'LANGUAGE="en_US.UTF-8:"' >> /etc/default/locale
-#RUN export LANG="en_US.UTF-8" >> /etc/bash.bashrc
-#RUN export LANGUAGE="en_US.UTF-8:" >> /etc/bash.bashrc
+
+ 
+
+ 
